@@ -1,6 +1,6 @@
 {
   "name": "@gmsca/ng2element",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A convert tool by schematics",
   "scripts": {
     "ng": "ng",
