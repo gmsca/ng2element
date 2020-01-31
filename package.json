@@ -1,6 +1,6 @@
 {
   "name": "@gmsca/ng2element",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "A convert tool by schematics",
   "scripts": {
     "ng": "ng",
@@ -9,7 +9,6 @@
     "test": "npm run build && jasmine src/**/*_spec.js",
     "build:watch": "tsc -p tsconfig.json --watch",
     "schematics:copy": "npm run build && webpack",
-    "rollup": "rollup -c -w",
     "clean": "rimraf ./node_modules/ && rimraf ./package-lock.json"
   },
   "keywords": [
@@ -36,14 +35,6 @@
   "main": "./src/ng-add/index.js",
   "devDependencies": {
     "copy-webpack-plugin": "^5.0.4",
-    "rollup": "^1.23.1",
-    "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-copy": "^3.1.0",
-    "rollup-plugin-json": "^4.0.0",
-    "rollup-plugin-node-builtins": "^2.1.2",
-    "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-terser": "^5.1.2",
-    "rollup-plugin-typescript": "^1.0.1",
     "webpack": "^4.41.0",
     "webpack-cli": "^3.3.9",
     "webpack-node-externals": "^1.7.2"
