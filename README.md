@@ -1,6 +1,6 @@
 # Convert Ng App to Ng element
 
-> Working with Angular 8 project only. **TypeScript version is `3.5.x`**
+> Working with Angular 8 and 9.
 
 ## Try it
 
