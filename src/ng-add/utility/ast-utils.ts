@@ -1,13 +1,25 @@
 import { SchematicsException, Tree } from '@angular-devkit/schematics';
-import { insertImport, addEntryComponentToModule, getFirstNgModuleName } from '@schematics/angular/utility/ast-utils';
-import { InsertChange, ReplaceChange } from '@schematics/angular/utility/change';
+import {
+  insertImport,
+  addEntryComponentToModule,
+  getFirstNgModuleName
+} from 'schematics-utilities/dist/angular/ast-utils';
+import {
+  InsertChange,
+  ReplaceChange
+} from 'schematics-utilities/dist/angular/change';
 import { getSourceFile } from 'schematics-utilities/dist/material/ast';
 import { readIntoSourceFile } from 'schematics-utilities/dist/material/build-component';
 import { tsquery } from '@phenomnomnominal/tsquery';
 import * as ts from 'typescript';
 import { load } from 'cheerio';
 
-export function insertImportOnly(host: Tree, modulePath: string, moduleName: string, src: string) {
+export function insertImportOnly(
+  host: Tree,
+  modulePath: string,
+  moduleName: string,
+  src: string
+) {
   const moduleSource = getSourceFile(host, modulePath);
 
   if (!moduleSource) {
@@ -24,14 +36,21 @@ export function insertImportOnly(host: Tree, modulePath: string, moduleName: str
   host.commitUpdate(recorder);
 }
 
-export function insertImportWithoutFrom(host: Tree, filePath: string, src: string) {
+export function insertImportWithoutFrom(
+  host: Tree,
+  filePath: string,
+  src: string
+) {
   const recorder = host.beginUpdate(filePath);
   const fileSource = getSourceFile(host, filePath);
   if (!fileSource) {
     throw new SchematicsException(`Module not found: ${filePath}`);
   }
 
-  let importNode = tsquery(fileSource, `ImportDeclaration:has(StringLiteral[value='${src}'])`);
+  let importNode = tsquery(
+    fileSource,
+    `ImportDeclaration:has(StringLiteral[value='${src}'])`
+  );
 
   if (importNode.length == 0) {
     let end = fileSource.end;
@@ -43,15 +62,28 @@ export function insertImportWithoutFrom(host: Tree, filePath: string, src: strin
   }
 }
 
-export function insertEncapsulation(host: Tree, ComponentPath: string, encapsulationValue: string) {
+export function insertEncapsulation(
+  host: Tree,
+  ComponentPath: string,
+  encapsulationValue: string
+) {
   const recorder = host.beginUpdate(ComponentPath);
 
-  if (tsquery(readIntoSourceFile(host, ComponentPath), 'Identifier[name="encapsulation"]').length == 0) {
+  if (
+    tsquery(
+      readIntoSourceFile(host, ComponentPath),
+      'Identifier[name="encapsulation"]'
+    ).length == 0
+  ) {
     let insertPos = tsquery(
       readIntoSourceFile(host, ComponentPath),
       'Decorator:has(Identifier[name="Component"]) > CallExpression > ObjectLiteralExpression > PropertyAssignment:last-child'
     )[0].end;
-    let change = new InsertChange(ComponentPath, insertPos, `,\r\n\tencapsulation: ${encapsulationValue}`);
+    let change = new InsertChange(
+      ComponentPath,
+      insertPos,
+      `,\r\n\tencapsulation: ${encapsulationValue}`
+    );
 
     if (change instanceof InsertChange) {
       recorder.insertLeft(change.pos, change.toAdd);
@@ -61,7 +93,11 @@ export function insertEncapsulation(host: Tree, ComponentPath: string, encapsula
   }
 }
 
-export function insertStringToProviders(host: Tree, modulePath: string, _strInsert: string) {
+export function insertStringToProviders(
+  host: Tree,
+  modulePath: string,
+  _strInsert: string
+) {
   const recorder = host.beginUpdate(modulePath);
 
   const appBaseHrefNode = tsquery(
@@ -93,15 +129,30 @@ export function insertStringToProviders(host: Tree, modulePath: string, _strInse
   }
 }
 
-export function replaceBootstrapToEntryComponents(host: Tree, modulePath: string, strReplaceString: string) {
+export function replaceBootstrapToEntryComponents(
+  host: Tree,
+  modulePath: string,
+  strReplaceString: string
+) {
   const recorder = host.beginUpdate(modulePath);
 
-  let bootstrapNode: ts.Node[] = tsquery(readIntoSourceFile(host, modulePath), 'Identifier[name="bootstrap"]');
+  let bootstrapNode: ts.Node[] = tsquery(
+    readIntoSourceFile(host, modulePath),
+    'Identifier[name="bootstrap"]'
+  );
   if (bootstrapNode.length != 0) {
-    let change = new ReplaceChange(modulePath, bootstrapNode[0].getStart(), bootstrapNode[0].getText(), strReplaceString);
+    let change = new ReplaceChange(
+      modulePath,
+      bootstrapNode[0].getStart(),
+      bootstrapNode[0].getText(),
+      strReplaceString
+    );
 
     if (change instanceof ReplaceChange) {
-      recorder.remove(bootstrapNode[0].getStart(), bootstrapNode[0].getText().length);
+      recorder.remove(
+        bootstrapNode[0].getStart(),
+        bootstrapNode[0].getText().length
+      );
       recorder.insertLeft(bootstrapNode[0].getStart(), strReplaceString);
     }
 
@@ -113,7 +164,12 @@ export function addEntryComponents(host: Tree, modulePath: string) {
   const source = readIntoSourceFile(host, modulePath);
 
   const recorder = host.beginUpdate(modulePath);
-  const changes = addEntryComponentToModule(source, modulePath, 'AppComponent', './app.component');
+  const changes = addEntryComponentToModule(
+    source,
+    modulePath,
+    'AppComponent',
+    './app.component'
+  );
   for (const change of changes) {
     if (change instanceof InsertChange) {
       recorder.insertLeft(change.pos, change.toAdd);
@@ -122,7 +178,12 @@ export function addEntryComponents(host: Tree, modulePath: string) {
   host.commitUpdate(recorder);
 }
 
-export function modifyIndexHTML(host: Tree, fileName: string, oldElementName: string, newElementName: string) {
+export function modifyIndexHTML(
+  host: Tree,
+  fileName: string,
+  oldElementName: string,
+  newElementName: string
+) {
   const fileContent: Buffer | null = host.read(fileName);
   if (fileContent) {
     const $ = load(fileContent, { decodeEntities: true });
@@ -136,9 +197,13 @@ export function modifyIndexHTML(host: Tree, fileName: string, oldElementName: st
       if ($(`${oldElementName}`).length > 0) {
         let content = $(`app-root`).html();
 
-        $(`app-root`).replaceWith(`<${newElementName}-element>${content}</${newElementName}-element>`);
+        $(`app-root`).replaceWith(
+          `<${newElementName}-element>${content}</${newElementName}-element>`
+        );
       } else {
-        $('body').append(`<${newElementName}-element></${newElementName}-element>`);
+        $('body').append(
+          `<${newElementName}-element></${newElementName}-element>`
+        );
       }
       $('body').append(`<script src="${newElementName}-element.js"></script>`);
       host.overwrite(fileName, $.html());
@@ -151,10 +216,16 @@ export function insertConstructorToClass(host: Tree, modulePath: string) {
   const source = readIntoSourceFile(host, modulePath);
   const strClassName = getFirstNgModuleName(source);
 
-  const ConstructorNode = tsquery(readIntoSourceFile(host, modulePath), `ClassDeclaration:has(Identifier[name=${strClassName}]):has(Constructor)`);
+  const ConstructorNode = tsquery(
+    readIntoSourceFile(host, modulePath),
+    `ClassDeclaration:has(Identifier[name=${strClassName}]):has(Constructor)`
+  );
 
   if (ConstructorNode.length == 0) {
-    let classNode = tsquery(readIntoSourceFile(host, modulePath), `ClassDeclaration:has(Identifier[name=${strClassName}])`)[0];
+    let classNode = tsquery(
+      readIntoSourceFile(host, modulePath),
+      `ClassDeclaration:has(Identifier[name=${strClassName}])`
+    )[0];
 
     let strInsert = '\r\n\tconstructor(private injector: Injector) {}\r\n';
 
@@ -174,11 +245,15 @@ export function insertConstructorToClass(host: Tree, modulePath: string) {
       readIntoSourceFile(host, modulePath),
       `ClassDeclaration:has(Identifier[name=${strClassName}]) > Constructor > Parameter`
     );
-    let constructorNode = tsquery(readIntoSourceFile(host, modulePath), `ClassDeclaration:has(Identifier[name=${strClassName}]) > Constructor`);
+    let constructorNode = tsquery(
+      readIntoSourceFile(host, modulePath),
+      `ClassDeclaration:has(Identifier[name=${strClassName}]) > Constructor`
+    );
 
     let strInsert = 'private injector: Injector';
     if (parameterNodes.length == 0) {
-      let pos = constructorNode[0].pos + constructorNode[0].getFullText().indexOf('(');
+      let pos =
+        constructorNode[0].pos + constructorNode[0].getFullText().indexOf('(');
 
       let change = new InsertChange(modulePath, pos + 1, strInsert);
 
@@ -189,7 +264,9 @@ export function insertConstructorToClass(host: Tree, modulePath: string) {
       host.commitUpdate(recorder);
     } else {
       if (parameterInjectorNode.length == 0) {
-        let pos = constructorNode[0].pos + constructorNode[0].getFullText().indexOf('(');
+        let pos =
+          constructorNode[0].pos +
+          constructorNode[0].getFullText().indexOf('(');
 
         let change = new InsertChange(modulePath, pos + 1, strInsert + ', ');
 
@@ -203,12 +280,19 @@ export function insertConstructorToClass(host: Tree, modulePath: string) {
   }
 }
 
-export function insertNgDoBootstrap(host: Tree, modulePath: string, _addContent: string) {
+export function insertNgDoBootstrap(
+  host: Tree,
+  modulePath: string,
+  _addContent: string
+) {
   const recorder = host.beginUpdate(modulePath);
   const source = readIntoSourceFile(host, modulePath);
   const strClassName = getFirstNgModuleName(source);
 
-  let classNodes = tsquery(readIntoSourceFile(host, modulePath), `ClassDeclaration:has(Identifier[name=${strClassName}])`);
+  let classNodes = tsquery(
+    readIntoSourceFile(host, modulePath),
+    `ClassDeclaration:has(Identifier[name=${strClassName}])`
+  );
 
   let ngDoBootstrapNode = tsquery(
     readIntoSourceFile(host, modulePath),
@@ -239,7 +323,11 @@ export function insertNgDoBootstrap(host: Tree, modulePath: string, _addContent:
         `ClassDeclaration:has(Identifier[name=${strClassName}]) > MethodDeclaration:has(Identifier[name=ngDoBootstrap]) > Block`
       );
 
-      let change = new InsertChange(modulePath, emptyBlockNode[0].end - 1, _addContent);
+      let change = new InsertChange(
+        modulePath,
+        emptyBlockNode[0].end - 1,
+        _addContent
+      );
 
       if (change instanceof InsertChange) {
         recorder.insertLeft(change.pos, change.toAdd);

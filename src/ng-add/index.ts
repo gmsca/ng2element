@@ -13,15 +13,19 @@ import {
   url
 } from '@angular-devkit/schematics';
 import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
-import { getWorkspace } from '@schematics/angular/utility/config';
-import { getAppModulePath } from '@schematics/angular/utility/ng-ast-utils';
-import { NodeDependency, NodeDependencyType, addPackageJsonDependency, getPackageJsonDependency } from '@schematics/angular/utility/dependencies';
+import { getWorkspace } from 'schematics-utilities/dist/angular/config';
+import { getAppModulePath } from 'schematics-utilities/dist/angular/ng-ast-utils';
+import {
+  NodeDependency,
+  NodeDependencyType,
+  addPackageJsonDependency,
+  getPackageJsonDependency
+} from 'schematics-utilities/dist/angular/dependencies';
 import { getProjectFromWorkspace } from 'schematics-utilities/dist/material/get-project';
 import { getIndexHtmlPath } from 'schematics-utilities/dist/material/ast';
 import {
   addEntryComponents,
   insertImportOnly,
-  // insertImportWithoutFrom,
   insertEncapsulation,
   insertStringToProviders,
   replaceBootstrapToEntryComponents,
@@ -33,9 +37,12 @@ import { Schema } from './schema';
 
 export function ngAdd(_options: Schema): Rule {
   return chain([
-    _options && _options.skipPackageJson ? noop() : addPackageJsonDependencies(),
-    _options && _options.skipPackageJson ? noop() : installPackageJsonDependencies(),
-    _options && _options.skipPolyfill ? noop() : editPolyfillsDotTs(),
+    _options && _options.skipPackageJson
+      ? noop()
+      : addPackageJsonDependencies(),
+    _options && _options.skipPackageJson
+      ? noop()
+      : installPackageJsonDependencies(),
     editAppComponent(_options),
     editAppModuleDotTs(_options),
     createBundleScript(_options),
@@ -49,12 +56,12 @@ function addPackageJsonDependencies(): Rule {
     const dependencies: NodeDependency[] = [
       {
         type: NodeDependencyType.Default,
-        version: '^8.2.14',
+        version: '^9.0.5',
         name: '@angular/elements'
       },
       {
         type: NodeDependencyType.Default,
-        version: '^2.4.0',
+        version: '^2.4.2',
         name: '@webcomponents/webcomponentsjs'
       },
       {
@@ -69,19 +76,22 @@ function addPackageJsonDependencies(): Rule {
       },
       {
         type: NodeDependencyType.Dev,
-        version: '^4.2.0',
+        version: '^5.0.2',
         name: 'replace-in-file'
       },
       {
         type: NodeDependencyType.Dev,
-        version: '^7.7.0',
+        version: '^7.8.7',
         name: '@babel/polyfill'
       }
     ];
 
     dependencies.forEach(dependency => {
       addPackageJsonDependency(host, dependency);
-      context.logger.log('info', `✔️        Added "${dependency.name}" into ${dependency.type}`);
+      context.logger.log(
+        'info',
+        `✔️        Added "${dependency.name}" into ${dependency.type}`
+      );
     });
 
     return host;
@@ -91,25 +101,10 @@ function addPackageJsonDependencies(): Rule {
 function installPackageJsonDependencies(): Rule {
   return (host: Tree, context: SchematicContext) => {
     context.addTask(new NodePackageInstallTask());
-    context.logger.log('info', `◽◽◽◽◽◽ Installing packages... ◽◽◽◽◽◽`);
-
-    return host;
-  };
-}
-
-function editPolyfillsDotTs() {
-  return (host: Tree, context: SchematicContext) => {
-    const polyfillName = 'src/polyfills.ts';
-    const polyfillPath = '@webcomponents/custom-elements';
-
-    try {
-      // insertImportWithoutFrom(host, polyfillName, `${polyfillPath}/src/native-shim`);
-      // insertImportWithoutFrom(host, polyfillName, `${polyfillPath}/custom-elements.min`);
-    } catch (e) {
-      context.logger.log('error', `🐛  Failed to add the "${polyfillPath}" to "${polyfillName}".`);
-    }
-
-    context.logger.log('info', `✔️        Added the "${polyfillPath}" to "${polyfillName}"`);
+    context.logger.log(
+      'info',
+      `◽◽◽◽◽◽ Installing packages... ◽◽◽◽◽◽`
+    );
 
     return host;
   };
@@ -118,9 +113,18 @@ function editPolyfillsDotTs() {
 function editAppComponent(_options: Schema): Rule {
   return (host: Tree, context: SchematicContext) => {
     const appComponentTsPath = 'src/app/app.component.ts';
-    insertImportOnly(host, appComponentTsPath, 'ViewEncapsulation', '@angular/core');
+    insertImportOnly(
+      host,
+      appComponentTsPath,
+      'ViewEncapsulation',
+      '@angular/core'
+    );
 
-    insertEncapsulation(host, appComponentTsPath, 'ViewEncapsulation.ShadowDom');
+    insertEncapsulation(
+      host,
+      appComponentTsPath,
+      'ViewEncapsulation.ShadowDom'
+    );
 
     context.logger.log('info', `✔️        app.component.ts is modified`);
 
@@ -131,7 +135,12 @@ function editAppComponent(_options: Schema): Rule {
 function editAppModuleDotTs(_options: Schema): Rule {
   return (host: Tree, context: SchematicContext) => {
     const workspace = getWorkspace(host);
-    const project = getProjectFromWorkspace(workspace, _options.project ? _options.project : Object.keys(workspace['projects'])[0]);
+    const project = getProjectFromWorkspace(
+      workspace,
+      _options.project
+        ? _options.project
+        : Object.keys(workspace['projects'])[0]
+    );
 
     const elementName = Object.keys(workspace['projects'])[0];
 
@@ -139,19 +148,49 @@ function editAppModuleDotTs(_options: Schema): Rule {
     const modulePath = getAppModulePath(host, targets.build.options.main);
 
     insertImportOnly(host, modulePath, 'Injector', '@angular/core');
-    context.logger.log('info', `✔️        Injector is imported in src/app/app.module.ts`);
+    context.logger.log(
+      'info',
+      `✔️        Injector is imported in src/app/app.module.ts`
+    );
     insertImportOnly(host, modulePath, 'APP_BASE_HREF', '@angular/common');
-    context.logger.log('info', `✔️        APP_BASE_HREF is imported in src/app/app.module.ts`);
-    insertImportOnly(host, modulePath, 'createCustomElement', '@angular/elements');
-    context.logger.log('info', `✔️        createCustomElement is imported in src/app/app.module.ts`);
-    insertStringToProviders(host, modulePath, "{ provide: APP_BASE_HREF, useValue: '/' }");
-    context.logger.log('info', `✔️        { provide: APP_BASE_HREF, useValue: '/' } is imported in src/app/app.module.ts`);
+    context.logger.log(
+      'info',
+      `✔️        APP_BASE_HREF is imported in src/app/app.module.ts`
+    );
+    insertImportOnly(
+      host,
+      modulePath,
+      'createCustomElement',
+      '@angular/elements'
+    );
+    context.logger.log(
+      'info',
+      `✔️        createCustomElement is imported in src/app/app.module.ts`
+    );
+    insertStringToProviders(
+      host,
+      modulePath,
+      "{ provide: APP_BASE_HREF, useValue: '/' }"
+    );
+    context.logger.log(
+      'info',
+      `✔️        { provide: APP_BASE_HREF, useValue: '/' } is imported in src/app/app.module.ts`
+    );
     replaceBootstrapToEntryComponents(host, modulePath, 'entryComponents');
-    context.logger.log('info', `✔️        replace bootstrap to entrycomponents in src/app/app.module.ts`);
+    context.logger.log(
+      'info',
+      `✔️        replace bootstrap to entrycomponents in src/app/app.module.ts`
+    );
     addEntryComponents(host, modulePath);
-    context.logger.log('info', `✔️        add EntryComponents in src/app/app.module.ts`);
+    context.logger.log(
+      'info',
+      `✔️        add EntryComponents in src/app/app.module.ts`
+    );
     insertConstructorToClass(host, modulePath);
-    context.logger.log('info', `✔️        insert Constructor in src/app/app.module.ts`);
+    context.logger.log(
+      'info',
+      `✔️        insert Constructor in src/app/app.module.ts`
+    );
     const addContent = `  
     const el = createCustomElement(AppComponent, {
       injector: this.injector
@@ -159,8 +198,14 @@ function editAppModuleDotTs(_options: Schema): Rule {
     customElements.define('${elementName}-element', el);
   `;
     insertNgDoBootstrap(host, modulePath, addContent);
-    context.logger.log('info', `✔️        insert code to NgDoBootstrap in src/app/app.module.ts`);
-    context.logger.log('info', `✔️        Injector APP_BASE_HREF createCustomElement is imported in src/app/app.module.ts`);
+    context.logger.log(
+      'info',
+      `✔️        insert code to NgDoBootstrap in src/app/app.module.ts`
+    );
+    context.logger.log(
+      'info',
+      `✔️        Injector APP_BASE_HREF createCustomElement is imported in src/app/app.module.ts`
+    );
 
     return host;
   };
@@ -181,7 +226,11 @@ function createBundleScript(_options: Schema) {
 
     _options.project = elementName;
 
-    const sourceParametrizeTemplate = apply(sourceTemplate, [renameTemplateFiles(), template({ ..._options }), move('/')]);
+    const sourceParametrizeTemplate = apply(sourceTemplate, [
+      renameTemplateFiles(),
+      template({ ..._options }),
+      move('/')
+    ]);
 
     host = mergeWith(sourceParametrizeTemplate)(host, context) as Tree;
 
@@ -202,7 +251,9 @@ function addNPMScripts() {
     const strPkgContent = JSON.parse(bufPkgContent.toString());
 
     if (bufPkgContent.toString().indexOf('build:ngelement') == -1) {
-      strPkgContent.scripts['build:ngelement'] = `ng build --prod --output-hashing none && node build-elements.js`;
+      strPkgContent.scripts[
+        'build:ngelement'
+      ] = `ng build --prod --output-hashing none && node build-elements.js`;
       context.logger.log('info', `✔️        addBundleScript running`);
     }
 
@@ -215,13 +266,21 @@ function editIndexHtml(_options: Schema) {
   return (host: Tree, context: SchematicContext) => {
     const workspace = getWorkspace(host);
     const elementName = Object.keys(workspace.projects)[0];
-    const project = getProjectFromWorkspace(workspace, _options.project ? _options.project : Object.keys(workspace['projects'])[0]);
+    const project = getProjectFromWorkspace(
+      workspace,
+      _options.project
+        ? _options.project
+        : Object.keys(workspace['projects'])[0]
+    );
 
     const fileName = getIndexHtmlPath(project);
     try {
       modifyIndexHTML(host, fileName, 'app-root', elementName);
     } catch (e) {
-      context.logger.log('error', `🐛  Failed to modify the <app-root> in ${fileName}`);
+      context.logger.log(
+        'error',
+        `🐛  Failed to modify the <app-root> in ${fileName}`
+      );
     }
 
     context.logger.log('info', `✔️        modified "${fileName}" `);

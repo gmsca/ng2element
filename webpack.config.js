@@ -14,6 +14,11 @@ module.exports = {
   externals: [
     nodeExternals({
       whitelist: [
+        'schematics-utilities/dist/angular/ast-utils',
+        'schematics-utilities/dist/angular/change',
+        'schematics-utilities/dist/angular/config',
+        'schematics-utilities/dist/angular/dependencies',
+        'schematics-utilities/dist/angular/ng-ast-utils',
         'schematics-utilities/dist/material/ast',
         'schematics-utilities/dist/material/get-project',
         'schematics-utilities/dist/material/build-component',
