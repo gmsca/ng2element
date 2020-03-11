@@ -18,5 +18,7 @@ export interface Schema {
    * The project that needs the polyfill scripts
    */
   project?: string;
+  projectRoot?: string;
+  projectSourceRoot?: string;
   ngVersion?: number = 6;
 }

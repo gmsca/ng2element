@@ -112,7 +112,16 @@ function installPackageJsonDependencies(): Rule {
 
 function editAppComponent(_options: Schema): Rule {
   return (host: Tree, context: SchematicContext) => {
-    const appComponentTsPath = 'src/app/app.component.ts';
+    const workspace = getWorkspace(host);
+    const project = getProjectFromWorkspace(
+      workspace,
+      _options.project
+        ? _options.project
+        : Object.keys(workspace['projects'])[0]
+    );
+
+    const appComponentTsPath = `${project.sourceRoot}/app/app.component.ts`;
+
     insertImportOnly(
       host,
       appComponentTsPath,
@@ -214,7 +223,13 @@ function editAppModuleDotTs(_options: Schema): Rule {
 function createBundleScript(_options: Schema) {
   return (host: Tree, context: SchematicContext) => {
     const workspace = getWorkspace(host);
-    const elementName = Object.keys(workspace.projects)[0];
+    const project = getProjectFromWorkspace(
+      workspace,
+      _options.project
+        ? _options.project
+        : Object.keys(workspace['projects'])[0]
+    );
+
     const sourceTemplate = url('./files');
     const ngCore = getPackageJsonDependency(host, `@angular/core`);
     if (ngCore) {
@@ -224,7 +239,11 @@ function createBundleScript(_options: Schema) {
       }
     }
 
-    _options.project = elementName;
+    _options.projectRoot = project.root.trim()
+      ? project.root.trim()
+      : Object.keys(workspace.projects)[0];
+    _options.projectSourceRoot = project.sourceRoot;
+    _options.project = Object.keys(workspace.projects)[0];
 
     const sourceParametrizeTemplate = apply(sourceTemplate, [
       renameTemplateFiles(),

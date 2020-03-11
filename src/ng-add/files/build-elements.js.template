@@ -9,11 +9,11 @@ const options = {
 
 (async function build() {
   const files = [<% if (ngVersion > 7) {%>
-    './dist/<%= project %>/runtime-es5.js',
-    './dist/<%= project %>/main-es5.js'
+    './dist/<%= projectRoot %>/runtime-es5.js',
+    './dist/<%= projectRoot %>/main-es5.js'
     <% } else {%>
-    './dist/<%= project %>/runtime.js',
-    './dist/<%= project %>/main.js'
+    './dist/<%= projectRoot %>/runtime.js',
+    './dist/<%= projectRoot %>/main.js'
     <% } %>
   ];
 
@@ -25,7 +25,7 @@ const options = {
     },
     { name: 'zone.min.js', from: 'node_modules/zone.js/dist/' },
     { name: 'polyfill.min.js', from: 'node_modules/@babel/polyfill/dist/' },
-    { name: 'index.html', from: 'src/' }
+    { name: 'index.html', from: '<%= projectSourceRoot %>/' }
   ];
 
   await fs.ensureDir('elements');
