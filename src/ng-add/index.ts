@@ -12,7 +12,7 @@ import {
   Tree,
   url
 } from '@angular-devkit/schematics';
-import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
+// import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
 import { getWorkspace } from 'schematics-utilities/dist/angular/config';
 import { getAppModulePath } from 'schematics-utilities/dist/angular/ng-ast-utils';
 import {
@@ -22,7 +22,10 @@ import {
   getPackageJsonDependency
 } from 'schematics-utilities/dist/angular/dependencies';
 import { getProjectFromWorkspace } from 'schematics-utilities/dist/material/get-project';
-import { getIndexHtmlPath } from 'schematics-utilities/dist/material/ast';
+import {
+  getIndexHtmlPath,
+  addModuleImportToModule
+} from 'schematics-utilities/dist/material/ast';
 import {
   addEntryComponents,
   insertImportOnly,
@@ -47,7 +50,8 @@ export function ngAdd(_options: Schema): Rule {
     editAppModuleDotTs(_options),
     createBundleScript(_options),
     addNPMScripts(),
-    editIndexHtml(_options)
+    editIndexHtml(_options),
+    editAppRoutingModuleDotTs(_options)
   ]);
 }
 
@@ -100,7 +104,7 @@ function addPackageJsonDependencies(): Rule {
 
 function installPackageJsonDependencies(): Rule {
   return (host: Tree, context: SchematicContext) => {
-    context.addTask(new NodePackageInstallTask());
+    // context.addTask(new NodePackageInstallTask());
     context.logger.log(
       'info',
       `◽◽◽◽◽◽ Installing packages... ◽◽◽◽◽◽`
@@ -303,6 +307,36 @@ function editIndexHtml(_options: Schema) {
     }
 
     context.logger.log('info', `✔️        modified "${fileName}" `);
+    return host;
+  };
+}
+
+function editAppRoutingModuleDotTs(_options: Schema): Rule {
+  return (host: Tree, context: SchematicContext) => {
+    const workspace = getWorkspace(host);
+    const project = getProjectFromWorkspace(
+      workspace,
+      _options.project
+        ? _options.project
+        : Object.keys(workspace['projects'])[0]
+    );
+
+    const appRoutingModuleTsPath = `${project.sourceRoot}/app/app-routing.module.ts`;
+    if (host.read(appRoutingModuleTsPath) === null) {
+      context.logger.log(
+        'info',
+        `❌       Could not find app-routing.module.ts`
+      );
+    } else {
+      addModuleImportToModule(
+        host,
+        appRoutingModuleTsPath,
+        'RouterTestingModule',
+        '@angular/router/testing'
+      );
+      context.logger.log('info', `✔️        app-routing.module.ts is modified`);
+    }
+
     return host;
   };
 }
