@@ -2,7 +2,8 @@ import { SchematicsException, Tree } from '@angular-devkit/schematics';
 import {
   insertImport,
   addEntryComponentToModule,
-  getFirstNgModuleName
+  getFirstNgModuleName,
+  getDecoratorMetadata
 } from 'schematics-utilities/dist/angular/ast-utils';
 import {
   InsertChange,
@@ -75,10 +76,13 @@ export function insertEncapsulation(
       'Identifier[name="encapsulation"]'
     ).length == 0
   ) {
-    let insertPos = tsquery(
-      readIntoSourceFile(host, ComponentPath),
-      'Decorator:has(Identifier[name="Component"]) > CallExpression > ObjectLiteralExpression > PropertyAssignment:last-child'
-    )[0].end;
+    let insertPos =
+      getDecoratorMetadata(
+        readIntoSourceFile(host, ComponentPath),
+        'Component',
+        '@angular/core'
+      )[0].end - 1;
+
     let change = new InsertChange(
       ComponentPath,
       insertPos,
