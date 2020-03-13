@@ -34,7 +34,8 @@ import {
   replaceBootstrapToEntryComponents,
   insertConstructorToClass,
   insertNgDoBootstrap,
-  modifyIndexHTML
+  modifyIndexHTML,
+  modifyAppComponentHTML
 } from './utility/ast-utils';
 import { Schema } from './schema';
 
@@ -51,7 +52,8 @@ export function ngAdd(_options: Schema): Rule {
     createBundleScript(_options),
     addNPMScripts(),
     editIndexHtml(_options),
-    editAppRoutingModuleDotTs(_options)
+    editAppRoutingModuleDotTs(_options),
+    editAppComponentHtml(_options)
   ]);
 }
 
@@ -337,6 +339,43 @@ function editAppRoutingModuleDotTs(_options: Schema): Rule {
       context.logger.log('info', `✔️        app-routing.module.ts is modified`);
     }
 
+    return host;
+  };
+}
+
+function editAppComponentHtml(_options: Schema) {
+  return (host: Tree, context: SchematicContext) => {
+    const workspace = getWorkspace(host);
+    const elementName = Object.keys(workspace.projects)[0];
+    let hasRouter = false;
+    const project = getProjectFromWorkspace(
+      workspace,
+      _options.project
+        ? _options.project
+        : Object.keys(workspace['projects'])[0]
+    );
+
+    const appComponentHtmlPath = `${project.sourceRoot}/app/app.component.html`;
+    try {
+      hasRouter = modifyAppComponentHTML(
+        host,
+        appComponentHtmlPath,
+        'router-outlet',
+        elementName
+      );
+    } catch (e) {
+      context.logger.log(
+        'error',
+        `🐛  Failed to modify the <router-outlet> in ${appComponentHtmlPath}`
+      );
+    }
+
+    if (hasRouter) {
+      context.logger.log(
+        'info',
+        `✔️        <router-outlet> modified "${appComponentHtmlPath}" `
+      );
+    }
     return host;
   };
 }

@@ -215,6 +215,34 @@ export function modifyIndexHTML(
   }
 }
 
+export function modifyAppComponentHTML(
+  host: Tree,
+  fileName: string,
+  tagName: string,
+  attrNameValue: string
+): boolean {
+  let hasRouter = false;
+  const fileContent: Buffer | null = host.read(fileName);
+
+  if (fileContent) {
+    const $ = load(fileContent);
+
+    if ($(tagName).length) {
+      if (
+        $(tagName).attr('name') === null ||
+        $(tagName).attr('name') === undefined
+      ) {
+        $(tagName).attr('name', attrNameValue);
+        const content = $('body').html() ? $('body').html() : '';
+        host.overwrite(fileName, content ? content : '');
+        hasRouter = true;
+      }
+    }
+  }
+
+  return hasRouter;
+}
+
 export function insertConstructorToClass(host: Tree, modulePath: string) {
   const recorder = host.beginUpdate(modulePath);
   const source = readIntoSourceFile(host, modulePath);
