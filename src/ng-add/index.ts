@@ -371,7 +371,6 @@ function editAppComponentHtml(_options: Schema) {
   return (host: Tree, context: SchematicContext) => {
     const workspace = getWorkspace(host);
     const elementName = Object.keys(workspace.projects)[0];
-    let hasRouter = false;
     const project = getProjectFromWorkspace(
       workspace,
       _options.project
@@ -381,23 +380,22 @@ function editAppComponentHtml(_options: Schema) {
 
     const appComponentHtmlPath = `${project.sourceRoot}/app/app.component.html`;
     try {
-      hasRouter = modifyAppComponentHTML(
-        host,
-        appComponentHtmlPath,
-        'router-outlet',
-        elementName
-      );
+      if (_options.hasRouting) {
+        modifyAppComponentHTML(
+          host,
+          appComponentHtmlPath,
+          'router-outlet',
+          elementName
+        );
+        context.logger.log(
+          'info',
+          `✔️        <router-outlet> modified "${appComponentHtmlPath}" `
+        );
+      }
     } catch (e) {
       context.logger.log(
         'error',
         `🐛  Failed to modify the <router-outlet> in ${appComponentHtmlPath}`
-      );
-    }
-
-    if (hasRouter) {
-      context.logger.log(
-        'info',
-        `✔️        <router-outlet> modified "${appComponentHtmlPath}" `
       );
     }
     return host;

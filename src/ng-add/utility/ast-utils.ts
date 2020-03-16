@@ -220,8 +220,7 @@ export function modifyAppComponentHTML(
   fileName: string,
   tagName: string,
   attrNameValue: string
-): boolean {
-  let hasRouter = false;
+) {
   const fileContent: Buffer | null = host.read(fileName);
 
   if (fileContent) {
@@ -235,12 +234,9 @@ export function modifyAppComponentHTML(
         $(tagName).attr('name', attrNameValue);
         const content = $('body').html() ? $('body').html() : '';
         host.overwrite(fileName, content ? content : '');
-        hasRouter = true;
       }
     }
   }
-
-  return hasRouter;
 }
 
 export function insertConstructorToClass(host: Tree, modulePath: string) {
