@@ -165,6 +165,9 @@ function editAppComponent(_options: Schema): Rule {
       'ViewEncapsulation.ShadowDom'
     );
 
+    if (_options.hasRouting) {
+    }
+
     context.logger.log('info', `✔️        app.component.ts is modified`);
 
     return host;
