@@ -47,6 +47,7 @@ export function ngAdd(_options: Schema): Rule {
     _options && _options.skipPackageJson
       ? noop()
       : installPackageJsonDependencies(),
+    hasRouting(_options),
     editAppComponent(_options),
     editAppModuleDotTs(_options),
     createBundleScript(_options),
@@ -111,6 +112,29 @@ function installPackageJsonDependencies(): Rule {
       'info',
       `◽◽◽◽◽◽ Installing packages... ◽◽◽◽◽◽`
     );
+
+    return host;
+  };
+}
+
+function hasRouting(_options: Schema): Rule {
+  return (host: Tree, context: SchematicContext) => {
+    const workspace = getWorkspace(host);
+    const project = getProjectFromWorkspace(
+      workspace,
+      _options.project
+        ? _options.project
+        : Object.keys(workspace['projects'])[0]
+    );
+
+    const appRoutingModuleTsPath = `${project.sourceRoot}/app/app-routing.module.ts`;
+    if (host.read(appRoutingModuleTsPath) != null) {
+      _options.hasRouting = true;
+      context.logger.log('info', `✔️       find app-routing.module.ts`);
+    } else {
+      _options.hasRouting = false;
+    }
+    console.log(`===============${_options.hasRouting}===================`);
 
     return host;
   };
@@ -207,11 +231,11 @@ function editAppModuleDotTs(_options: Schema): Rule {
       `✔️        insert Constructor in src/app/app.module.ts`
     );
     const addContent = `  
-    const el = createCustomElement(AppComponent, {
-      injector: this.injector
-    });
-    customElements.define('${elementName}-element', el);
-  `;
+      const el = createCustomElement(AppComponent, {
+        injector: this.injector
+      });
+      customElements.define('${elementName}-element', el);
+    `;
     insertNgDoBootstrap(host, modulePath, addContent);
     context.logger.log(
       'info',
@@ -324,12 +348,7 @@ function editAppRoutingModuleDotTs(_options: Schema): Rule {
     );
 
     const appRoutingModuleTsPath = `${project.sourceRoot}/app/app-routing.module.ts`;
-    if (host.read(appRoutingModuleTsPath) === null) {
-      context.logger.log(
-        'info',
-        `❌       Could not find app-routing.module.ts`
-      );
-    } else {
+    if (_options.hasRouting) {
       addModuleImportToModule(
         host,
         appRoutingModuleTsPath,
@@ -337,6 +356,11 @@ function editAppRoutingModuleDotTs(_options: Schema): Rule {
         '@angular/router/testing'
       );
       context.logger.log('info', `✔️        app-routing.module.ts is modified`);
+    } else {
+      context.logger.log(
+        'info',
+        `❌       Could not find app-routing.module.ts`
+      );
     }
 
     return host;

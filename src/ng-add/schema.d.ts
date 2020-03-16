@@ -20,5 +20,6 @@ export interface Schema {
   project?: string;
   projectRoot?: string;
   projectSourceRoot?: string;
+  hasRouting?: boolean;
   ngVersion?: number = 6;
 }
