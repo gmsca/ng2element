@@ -34,6 +34,14 @@ import {
   modifyIndexHTML
 } from './utility/ast-utils';
 import { Schema } from './schema';
+import {
+  angularElementsVersion,
+  webcomponentsjsVersion,
+  fsVersion,
+  concatVersion,
+  replaceInFileVersion,
+  babelPolyfillVersion
+} from './versions';
 
 export function ngAdd(_options: Schema): Rule {
   return chain([
@@ -56,32 +64,32 @@ function addPackageJsonDependencies(): Rule {
     const dependencies: NodeDependency[] = [
       {
         type: NodeDependencyType.Default,
-        version: '^9.0.5',
+        version: angularElementsVersion,
         name: '@angular/elements'
       },
       {
         type: NodeDependencyType.Default,
-        version: '^2.4.2',
+        version: webcomponentsjsVersion,
         name: '@webcomponents/webcomponentsjs'
       },
       {
         type: NodeDependencyType.Dev,
-        version: '^8.1.0',
+        version: fsVersion,
         name: 'fs-extra'
       },
       {
         type: NodeDependencyType.Dev,
-        version: '^1.0.3',
+        version: concatVersion,
         name: 'concat'
       },
       {
         type: NodeDependencyType.Dev,
-        version: '^5.0.2',
+        version: replaceInFileVersion,
         name: 'replace-in-file'
       },
       {
         type: NodeDependencyType.Dev,
-        version: '^7.8.7',
+        version: babelPolyfillVersion,
         name: '@babel/polyfill'
       }
     ];

@@ -1,14 +1,14 @@
 {
   "name": "@gmsca/ng2element",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "A convert tool by schematics",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "tsc -p tsconfig.json",
     "test": "npm run build && jasmine src/**/*_spec.js",
-    "build:watch": "tsc -p tsconfig.json --watch",
-    "schematics:copy": "npm run build && webpack",
+    "watch": "tsc -p tsconfig.json --watch",
+    "package": "npm run build && webpack",
     "clean": "rimraf ./node_modules/ && rimraf ./package-lock.json"
   },
   "keywords": [

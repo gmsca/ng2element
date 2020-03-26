@@ -1,6 +1,6 @@
 # Convert Ng App to Ng element
 
-> Working with Angular 8 and 9.
+> Working with Angular 8 and later.
 
 ## Try it
 
