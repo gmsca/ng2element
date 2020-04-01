@@ -1,6 +1,5 @@
 const path = require('path');
 const nodeExternals = require('webpack-node-externals');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   entry: './src/ng-add/index.js',
@@ -25,33 +24,5 @@ module.exports = {
         'npm-registry-client'
       ]
     })
-  ],
-  plugins: [
-    new CopyWebpackPlugin(
-      [
-        {
-          from: './src/collection.json',
-          to: '../collection.json',
-          toType: 'file'
-        },
-        {
-          from: './package.json',
-          to: '../package.json',
-          toType: 'file'
-        },
-        {
-          from: './src/ng-add/files/',
-          to: './files/[name].[ext]',
-          test: /([^/]+)\/(.+)\.template$/,
-          toType: 'template'
-        },
-        {
-          from: './README.md',
-          to: '../README.md',
-          toType: 'file'
-        }
-      ],
-      {}
-    )
   ]
 };

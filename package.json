@@ -8,7 +8,7 @@
     "build": "tsc -p tsconfig.json",
     "test": "npm run build && jasmine src/**/*_spec.js",
     "watch": "tsc -p tsconfig.json --watch",
-    "package": "npm run build && webpack",
+    "package": "npm run build && webpack && ts-node -P ./tasks/tsconfig.tasks.json tasks/build-schematics.ts",
     "clean": "rimraf ./node_modules/ && rimraf ./package-lock.json"
   },
   "keywords": [
@@ -30,10 +30,13 @@
   },
   "main": "./src/ng-add/index.js",
   "devDependencies": {
+    "@types/fs-extra": "^8.1.0",
     "@types/jasmine": "^3.5.8",
     "@types/node": "^12.12.29",
+    "fs-extra": "^9.0.0",
     "jasmine": "^3.5.0",
-    "copy-webpack-plugin": "^5.1.1",
+    "replace-in-file": "^5.0.2",
+    "ts-node": "^8.8.1",
     "webpack": "^4.42.0",
     "webpack-cli": "^3.3.11",
     "webpack-node-externals": "^1.7.2"
