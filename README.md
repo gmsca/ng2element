@@ -11,7 +11,7 @@
 - run `npm run build:ngelement`
 - then, you will get a `<projectname>-element.js` file in `root/elements/`
 - Use webserver to load `elements` folder.
-  - I use `live server` to open it in vscode.
+  - I use `live-server` to open it in vscode.
 - Open live server: http://localhost:5500
 - it should work that is web component by angular element.
 
