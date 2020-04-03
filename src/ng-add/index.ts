@@ -1,6 +1,7 @@
 import {
   apply,
   chain,
+  MergeStrategy,
   mergeWith,
   move,
   noop,
@@ -14,34 +15,25 @@ import {
 } from '@angular-devkit/schematics';
 import { NodePackageInstallTask } from '@angular-devkit/schematics/tasks';
 import { getWorkspace } from 'schematics-utilities/dist/angular/config';
-import { getAppModulePath } from 'schematics-utilities/dist/angular/ng-ast-utils';
 import {
-  NodeDependency,
-  NodeDependencyType,
   addPackageJsonDependency,
   getPackageJsonDependency
 } from 'schematics-utilities/dist/angular/dependencies';
-import { getProjectFromWorkspace } from 'schematics-utilities/dist/material/get-project';
+import { getAppModulePath } from 'schematics-utilities/dist/angular/ng-ast-utils';
 import { getIndexHtmlPath } from 'schematics-utilities/dist/material/ast';
-import {
-  addEntryComponents,
-  insertImportOnly,
-  insertEncapsulation,
-  insertStringToProviders,
-  replaceBootstrapToEntryComponents,
-  insertConstructorToClass,
-  insertNgDoBootstrap,
-  modifyIndexHTML
-} from './utility/ast-utils';
+import { getProjectFromWorkspace } from 'schematics-utilities/dist/material/get-project';
 import { Schema } from './schema';
 import {
-  angularElementsVersion,
-  webcomponentsjsVersion,
-  fsVersion,
-  concatVersion,
-  replaceInFileVersion,
-  babelPolyfillVersion
-} from './versions';
+  addEntryComponents,
+  insertConstructorToClass,
+  insertEncapsulation,
+  insertImportOnly,
+  insertNgDoBootstrap,
+  insertStringToProviders,
+  modifyIndexHTML,
+  replaceBootstrapToEntryComponents
+} from './utility/ast-utils';
+import { dependencies } from './versions';
 
 export function ngAdd(_options: Schema): Rule {
   return chain([
@@ -61,39 +53,6 @@ export function ngAdd(_options: Schema): Rule {
 
 function addPackageJsonDependencies(): Rule {
   return (host: Tree, context: SchematicContext) => {
-    const dependencies: NodeDependency[] = [
-      {
-        type: NodeDependencyType.Default,
-        version: angularElementsVersion,
-        name: '@angular/elements'
-      },
-      {
-        type: NodeDependencyType.Default,
-        version: webcomponentsjsVersion,
-        name: '@webcomponents/webcomponentsjs'
-      },
-      {
-        type: NodeDependencyType.Dev,
-        version: fsVersion,
-        name: 'fs-extra'
-      },
-      {
-        type: NodeDependencyType.Dev,
-        version: concatVersion,
-        name: 'concat'
-      },
-      {
-        type: NodeDependencyType.Dev,
-        version: replaceInFileVersion,
-        name: 'replace-in-file'
-      },
-      {
-        type: NodeDependencyType.Dev,
-        version: babelPolyfillVersion,
-        name: '@babel/polyfill'
-      }
-    ];
-
     dependencies.forEach(dependency => {
       addPackageJsonDependency(host, dependency);
       context.logger.log(
@@ -259,7 +218,10 @@ function createBundleScript(_options: Schema) {
       move('/')
     ]);
 
-    host = mergeWith(sourceParametrizeTemplate)(host, context) as Tree;
+    host = mergeWith(sourceParametrizeTemplate, MergeStrategy.Overwrite)(
+      host,
+      context
+    ) as Tree;
 
     context.logger.log('info', `✔️        CreateBundleScript running`);
     return host;
@@ -280,7 +242,7 @@ function addNPMScripts() {
     if (bufPkgContent.toString().indexOf('build:ngelement') == -1) {
       strPkgContent.scripts[
         'build:ngelement'
-      ] = `ng build --prod --output-hashing none && node build-elements.js`;
+      ] = `ng build --prod --output-hashing none && ts-node -P ./tasks/tsconfig.tasks.json tasks/build-elements.ts`;
       context.logger.log('info', `✔️        addBundleScript running`);
     }
 

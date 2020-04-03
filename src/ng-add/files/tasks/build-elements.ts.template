@@ -1,0 +1,44 @@
+import { copyFile, ensureDir } from 'fs-extra';
+import replaceInFile from 'replace-in-file';
+
+const concat = require('concat');
+
+const options = {
+  files: 'elements/deltest-element.js',
+  from: /webpackJsonp/g,
+  to: 'deltestJsonp'
+};
+
+const files = ['./dist/deltest/runtime-es5.js', './dist/deltest/main-es5.js'];
+
+const jsInIndex = [
+  {
+    name: 'webcomponents-bundle.js',
+    from: 'node_modules/@webcomponents/webcomponentsjs/'
+  },
+  {
+    name: 'custom-elements-es5-adapter.js',
+    from: 'node_modules/@webcomponents/webcomponentsjs/'
+  },
+  { name: 'zone.min.js', from: 'node_modules/zone.js/dist/' },
+  { name: 'polyfill.min.js', from: 'node_modules/@babel/polyfill/dist/' },
+  { name: 'index.html', from: 'src/' }
+];
+
+ensureDir('elements');
+concat(files, 'elements/deltest-element.js');
+
+jsInIndex.forEach(element =>
+  copyFile(
+    `${element.from}${element.name}`,
+    `elements/${element.name}`,
+    err => {
+      if (err) {
+        return console.error(err);
+      }
+      console.log(`${element.name} success!`);
+    }
+  )
+);
+
+replaceInFile.sync(options);

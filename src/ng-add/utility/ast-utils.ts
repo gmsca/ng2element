@@ -1,9 +1,11 @@
 import { SchematicsException, Tree } from '@angular-devkit/schematics';
+import { tsquery } from '@phenomnomnominal/tsquery';
+import { load } from 'cheerio';
 import {
-  insertImport,
   addEntryComponentToModule,
+  getDecoratorMetadata,
   getFirstNgModuleName,
-  getDecoratorMetadata
+  insertImport
 } from 'schematics-utilities/dist/angular/ast-utils';
 import {
   InsertChange,
@@ -11,9 +13,7 @@ import {
 } from 'schematics-utilities/dist/angular/change';
 import { getSourceFile } from 'schematics-utilities/dist/material/ast';
 import { readIntoSourceFile } from 'schematics-utilities/dist/material/build-component';
-import { tsquery } from '@phenomnomnominal/tsquery';
 import * as ts from 'typescript';
-import { load } from 'cheerio';
 
 export function insertImportOnly(
   host: Tree,
