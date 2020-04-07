@@ -4,12 +4,12 @@ import replaceInFile from 'replace-in-file';
 const concat = require('concat');
 
 const options = {
-  files: 'elements/deltest-element.js',
+  files: 'elements/<%= project %>-element.js',
   from: /webpackJsonp/g,
-  to: 'deltestJsonp'
+  to: '<%= project %>Jsonp'
 };
 
-const files = ['./dist/deltest/runtime-es5.js', './dist/deltest/main-es5.js'];
+const files = ['./dist/<%= project %>/runtime-es5.js', './dist/<%= project %>/main-es5.js'];
 
 const jsInIndex = [
   {
@@ -26,7 +26,7 @@ const jsInIndex = [
 ];
 
 ensureDir('elements');
-concat(files, 'elements/deltest-element.js');
+concat(files, 'elements/<%= project %>-element.js');
 
 jsInIndex.forEach(element =>
   copyFile(
