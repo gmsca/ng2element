@@ -1,7 +1,12 @@
-import { copyFile, ensureDir } from 'fs-extra';
+import {
+  appendFileSync,
+  copyFile,
+  createFileSync,
+  ensureDirSync,
+  readFileSync,
+  removeSync,
+} from 'fs-extra';
 import replaceInFile from 'replace-in-file';
-
-const concat = require('concat');
 
 const options = {
   files: 'elements/<%= project %>-element.js',
@@ -25,8 +30,13 @@ const jsInIndex = [
   { name: 'index.html', from: 'src/' }
 ];
 
-ensureDir('elements');
-concat(files, 'elements/<%= project %>-element.js');
+removeSync('elements');
+ensureDirSync('elements');
+createFileSync('elements/<%= project %>-element.js');
+
+files.forEach((file) => {
+  appendFileSync('elements/<%= project %>-element.js', readFileSync(file));
+});
 
 jsInIndex.forEach(element =>
   copyFile(
