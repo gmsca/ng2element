@@ -35,7 +35,7 @@ ensureDirSync('elements');
 createFileSync('elements/<%= project %>-element.js');
 
 files.forEach((file) => {
-  appendFileSync('elements/<%= project %>-element.js', readFileSync(file));
+  appendFileSync('elements/<%= project %>-element.js', readFileSync(file) + '\r\n');
 });
 
 jsInIndex.forEach(element =>
