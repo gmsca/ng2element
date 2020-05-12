@@ -1,11 +1,4 @@
-import {
-  appendFileSync,
-  copyFile,
-  createFileSync,
-  ensureDirSync,
-  readFileSync,
-  removeSync,
-} from 'fs-extra';
+import { appendFileSync, copyFile, emptyDirSync, readFileSync } from 'fs-extra';
 import replaceInFile from 'replace-in-file';
 
 const options = {
@@ -30,9 +23,7 @@ const jsInIndex = [
   { name: 'index.html', from: 'src/' }
 ];
 
-removeSync('elements');
-ensureDirSync('elements');
-createFileSync('elements/<%= project %>-element.js');
+emptyDirSync('elements');
 
 files.forEach((file) => {
   appendFileSync('elements/<%= project %>-element.js', readFileSync(file) + '\r\n');
